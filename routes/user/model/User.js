@@ -26,12 +26,8 @@ const userSchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    post:[
-        {type:mongoose.Schema.ObjectId, ref:"post"}
-    ],
-    closedPost:[
-        {type:mongoose.Schema.ObjectId, ref:"closedPost"}
-    ]
+    post:[],
+    closedPost:[]
 })
 
 module.exports = mongoose.model("user", userSchema)

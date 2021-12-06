@@ -10,7 +10,9 @@ let publicPostSchema = new mongoose.Schema({
     timestamp:{
         type: Date,
         default: ()=>Date.now()
-    }
+    },
+    joinedUsers:[
+    ]
 })
 
 module.exports = mongoose.model("publicPost", publicPostSchema)

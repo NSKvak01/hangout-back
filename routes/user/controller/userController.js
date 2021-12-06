@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs")
 const dbErrorHelper = require("../lib/dbErrorHelper")
 const jwt = require("jsonwebtoken")
 const passport = require("../../utils/passport/userPassport")
+const PublicPost = require("../../post/model/PublicPost")
 
 async function signup(req,res, next){
     const {firstName, lastName, username, email, password} = req.body
@@ -101,30 +102,75 @@ async function updateUser(req, res, next) {
     }
 }
 
-    async function fetchUserInfo(req, res, next) {
-        try {
-            let userInfo = await User.findOne({username:req.user.username}).select(
-                "-password -__v -yelp -_id"
-            );
-            res.json({ message: "success", payload: userInfo });
-            } catch (e) {
-            next(e);
-            }
+async function fetchUserInfo(req, res, next) {
+    try {
+        let userInfo = await User.findOne({username:req.user.username}).select(
+            "-password -__v "
+        );
+        res.json({ message: "success", payload: userInfo });
+        } catch (e) {
+        next(e);
         }
+    }
 
-        async function deleteUser(req,res,next){
-            try {
-                let deletedUser= await User.findOneAndDelete({username:req.user.username})
-                res.json({message:"User deleted"})
-            } catch (error) {
-                next(error);
+async function deleteUser(req,res,next){
+    try {
+        let deletedUser= await User.findOneAndDelete({username:req.user.username})
+        res.json({message:"User deleted"})
+    } catch (error) {
+        next(error);
+    }
+}
+
+const joinUser = async(req,res)=>{
+    const {joinedUsers, userID} = req.body
+    try {
+        const foundPost = await PublicPost.findById(req.params._id)
+
+            const update = [...foundPost.joinedUsers,{
+                userID:userID,
+                joinedUser:joinedUsers,
+                }]
+        let updatePublicPost = await PublicPost.findByIdAndUpdate(
+            req.params._id,
+            {joinedUsers: update},
+            {new:true}
+        )
+        res.json(updatePublicPost)
+    } catch (error) {
+        res.status(500).json({error:error, message:error.message})
+
+    }
+}
+
+const deleteJoinedUser = async (req,res)=>{
+    try {
+        const {username} = req.body
+        let post = await PublicPost.findById(req.params._id)
+        console.log(post)
+        let filteredUsers = await post.joinedUsers.filter((item)=>{
+            if(item.joinedUser!== username){
+                return item
             }
-        }
+        })
+       let updateJoinedUsers = await PublicPost.findByIdAndUpdate(
+        req.params._id,
+        {joinedUsers:filteredUsers},
+        {new:true}
+       )
+        res.json(updateJoinedUsers)
+    } catch (error) {
+        res.status(500).json({error:error, message:error.message})
+        
+    }
+}
 
 module.exports={
 signup,
 login,
 updateUser,
 fetchUserInfo,
-deleteUser
+deleteUser,
+joinUser,
+deleteJoinedUser
 }

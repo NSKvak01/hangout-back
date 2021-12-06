@@ -7,9 +7,9 @@ const {getAllPosts, savePost, addPost, getSavedPosts, deletePost, closePost, get
 router.get("/get-all-posts", passport.authenticate('jwt-user', {session:false}), getAllPosts)
 router.get("/get-saved-posts", passport.authenticate('jwt-user', {session:false}), getSavedPosts)
 router.get("/get-closed-posts", passport.authenticate('jwt-user', {session:false}), getClosedPosts)
-router.post("/save-post", passport.authenticate('jwt-user', {session:false}), savePost)
-router.post("/close-post", passport.authenticate('jwt-user', {session:false}), closePost)
+router.put("/save-post", passport.authenticate('jwt-user', {session:false}), savePost)
+router.put("/close-post", passport.authenticate('jwt-user', {session:false}), closePost)
+router.put("/delete-post", passport.authenticate('jwt-user', {session:false}), deletePost)
 router.post("/create-post", passport.authenticate('jwt-user', {session:false}), addPost)
-router.delete("/delete-post/:id", passport.authenticate('jwt-user', {session:false}), deletePost)
 
 module.exports = router

@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 let passport = require('passport')
-const {signup, login, updateUser, deleteUser, fetchUserInfo } = require("./controller/userController")
+const {signup, login, updateUser, deleteUser, fetchUserInfo, joinUser, deleteJoinedUser } = require("./controller/userController")
 const checkIsEmpty = require("./helpers/checkIsEmpty")
 const checkIsUndefined = require("./helpers/checkIsUndefined")
 const checkIsStrongPassword = require("./helpers/checkIsStrongPassword")
@@ -34,6 +34,11 @@ router.delete("/delete-user",
 passport.authenticate('jwt-user', {session:false}),
 deleteUser
 )
+
+
+
+router.put("/join-user/:_id", passport.authenticate('jwt-user', {session:false}), joinUser)
+router.put("/delete-joined-user/:_id", passport.authenticate('jwt-user', {session:false}), deleteJoinedUser)
 
 router.get('/logout', function(req,res){
   res.clearCookie('jwt-cookie')
