@@ -23,6 +23,7 @@ const getSavedPosts = async(req,res)=>{
         res.status(500).json({error:error, message:error.message})
     }
 }
+
 const getClosedPosts = async(req,res)=>{
     try {
         let payload = await User.findOne({username:req.user.username})
@@ -90,7 +91,7 @@ const closePost = async(req,res)=>{
     }
 }
 
-const deletePost = async (req,res)=>{
+const deleteSavedPost = async (req,res)=>{
     const {_id} = req.body
     try {
         let foundUser = await User.findOne({username:req.user.username})
@@ -113,14 +114,53 @@ const deletePost = async (req,res)=>{
         
     }
 }
+const deleteSavedPostFromDecline = async (req,res)=>{
+    const {_id} = req.body
+    try {
+
+        //When declining a user who joined your activity, I want to delete the joined activity for the joined user, so it doesn't show on his/her page. 
+
+        let foundUser = await User.findOne({username:req.params.username})
+
+        const filteredPost = foundUser.post.filter((item)=>{
+           console.log(item._id)
+            if(item._id !== _id){
+                return item
+            }
+        })
+        console.log("filteredPost",filteredPost)
+        let updateSavedPosts = await User.findOneAndUpdate(
+            {username:req.params.username},
+            {post:filteredPost},
+            {new:true}
+        )
+
+        console.log(updateSavedPosts)
+        res.json(updateSavedPosts)
+    } catch (error) {
+        res.status(500).json({error:error, message:error.message})
+        
+    }
+}
+
+const deletePublicPost = async(req,res) =>{
+    try {
+        let deletedPost= await PublicPost.findOneAndDelete({_id:req.params._id})
+        res.json({message:"Post deleted"})
+    } catch (e) {
+        res.status(500).json({error:error, message:error.message})
+    }
+}
 
 module.exports = {
     getAllPosts,
     savePost,
     addPost,
     getSavedPosts,
-    deletePost,
+    deleteSavedPost,
     closePost,
-    getClosedPosts
+    getClosedPosts,
+    deleteSavedPostFromDecline,
+    deletePublicPost
     
 }
