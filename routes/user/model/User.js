@@ -27,6 +27,7 @@ const userSchema = new mongoose.Schema({
         required:true
     },
     post:[],
+    closedPost:[],
     interests:[],
     age:{
         type:String
