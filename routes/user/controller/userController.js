@@ -18,7 +18,20 @@ async function signup(req,res, next){
             password:hashedPassword
         })
         let createdUser = await newUser.save()
-        res.json({message:"Success - user created"})
+        let foundUser = await User.findOne({email:email})
+        let jwtToken = jwt.sign({username:foundUser.username, email:foundUser.email},
+            process.env.PRIVATE_JWT_KEY)
+            res.cookie('jwt-cookie', jwtToken, {
+                expires: new Date (Date.now()+3600000),
+                httpOnly:false,
+                secure:false
+            })
+
+        res.json({user:{
+            username:foundUser.username,
+            email:foundUser.email
+        }, message:"Success - user created"})
+
     } catch(e){
         res.status(500).json({
             message:dbErrorHelper(e)
@@ -102,9 +115,56 @@ async function updateUser(req, res, next) {
     }
 }
 
+async function addInterests(req, res, next) {
+    try {
+        let updatedUser = await User.findOneAndUpdate(
+            { username:req.user.username },
+            {interests:req.body.interests},
+            { new: true }
+        )
+            res.json({ message: "success", payload: updatedUser });
+    } catch (e) {
+        next(e);
+    }
+}
+async function addBio(req, res, next) {
+    try {
+        let updatedUser = await User.findOneAndUpdate(
+            { username:req.user.username },
+            {bio:req.body.bio},
+            { new: true }
+        )
+            res.json({ message: "success", payload: updatedUser });
+    } catch (e) {
+        next(e);
+    }
+}
+async function addUserInfo(req, res, next) {
+    try {
+        let updatedUser = await User.findOneAndUpdate(
+            { username:req.user.username },
+            req.body,
+            { new: true }
+        )
+            res.json({ message: "success", payload: updatedUser });
+    } catch (e) {
+        next(e);
+    }
+}
+
 async function fetchUserInfo(req, res, next) {
     try {
         let userInfo = await User.findOne({username:req.user.username}).select(
+            "-password -__v "
+        );
+        res.json({ message: "success", payload: userInfo });
+        } catch (e) {
+        next(e);
+        }
+    }
+async function fetchAnotherUserInfo(req, res, next) {
+    try {
+        let userInfo = await User.findOne({username:req.params.user}).select(
             "-password -__v "
         );
         res.json({ message: "success", payload: userInfo });
@@ -172,5 +232,9 @@ updateUser,
 fetchUserInfo,
 deleteUser,
 joinUser,
-deleteJoinedUser
+deleteJoinedUser,
+addInterests,
+addBio,
+addUserInfo,
+fetchAnotherUserInfo
 }

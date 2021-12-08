@@ -27,7 +27,19 @@ const userSchema = new mongoose.Schema({
         required:true
     },
     post:[],
-    closedPost:[]
+    interests:[],
+    age:{
+        type:String
+    },
+    location:{
+        type:String
+    },
+    bio:{
+        type:String
+    },
+    hometown:{
+        type:String
+    }
 })
 
 module.exports = mongoose.model("user", userSchema)
